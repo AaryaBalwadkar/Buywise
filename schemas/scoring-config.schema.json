@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "buywise/scoring-config.schema.json",
+  "title": "ScoringConfig",
+  "type": "object",
+  "required": ["weights"],
+  "properties": {
+    "weights": {
+      "type": "object",
+      "description": "criterion -> non-negative number. Unknown criteria and negative weights are rejected.",
+      "propertyNames": { "enum": ["price", "quality", "reviews", "delivery", "warranty", "vendor_reliability", "payment_terms", "budget_compliance", "source_quality", "specification_completeness"] },
+      "additionalProperties": false,
+      "patternProperties": { "^.*$": { "type": "number", "minimum": 0 } }
+    },
+    "spec_fields": { "type": "array", "items": { "type": "string" }, "description": "Category-specific spec fields for completeness. Empty array means no basis (completeness 0)." },
+    "source_quality_map": { "type": "object", "description": "Optional override of the default domain-tier mapping." },
+    "notes": { "type": "string" }
+  },
+  "additionalProperties": false
+}

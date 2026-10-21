@@ -1,0 +1,9 @@
+{
+  "name": "product-search",
+  "input": { "query": "string (required)", "limit": "integer (default 10)" },
+  "output": "array of serpapi_shopping envelopes with data:{product_name, brand, model(serpapi product_id), merchant_name, merchant_url, product_url, price, currency, delivery, rating, review_count} + tavily_search envelopes with data:{title, snippet}",
+  "providers": ["serpapi_shopping (primary structured)", "tavily_search (web research)", "ebay_browse_api (INACTIVE unless EBAY_ENABLED=true)"],
+  "candidate_vs_offer": "A listing without verified merchant+price+currency is a product CANDIDATE, never an offer. See tools/_lib/commercial.js.",
+  "exclusions": ["amazon.*", "flipkart.*"],
+  "on_missing_credentials": { "data_status": "UNAVAILABLE", "retryable": false }
+}

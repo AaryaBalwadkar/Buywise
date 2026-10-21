@@ -1,0 +1,8 @@
+{
+  "name": "vendor-search",
+  "input": { "query": "string (required unless serpapi_product_id)", "limit": "integer (default 10)", "serpapi_product_id": "string (optional, enables per-merchant sellers lookup)", "productCtx": "object (optional)" },
+  "output": "array of envelopes: serpapi listings (merchant+price evidence), serpapi per-merchant sellers (separate offers, never collapsed), tavily enrichment_evidence (official/warranty/shipping pages, price always unavailable)",
+  "providers": ["serpapi_shopping (primary)", "tavily_search (enrichment only)", "ebay_browse_api (INACTIVE)"],
+  "reliability_rule": "vendor_reliability = unavailable unless dedicated reliability evidence exists. Never infer from product ratings.",
+  "unverifiable_field_value": "unavailable"
+}

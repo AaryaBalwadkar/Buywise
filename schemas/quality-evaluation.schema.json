@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "buywise/quality-evaluation.schema.json",
+  "title": "QualityEvaluation",
+  "type": "object",
+  "required": ["procurement_id", "product_id", "source_quality", "source_quality_score", "specification_completeness", "quality_confidence", "retrieved_at", "data_status"],
+  "properties": {
+    "quality_evaluation_id": { "type": "string" },
+    "procurement_id": { "type": "string", "format": "uuid" },
+    "product_id": { "type": "string", "minLength": 1 },
+    "source_quality": { "type": "string", "enum": ["HIGH", "MEDIUM", "LOW"], "description": "Evidence strength only, never product quality." },
+    "source_quality_score": { "type": "number", "minimum": 0, "maximum": 1 },
+    "specification_completeness": { "type": "number", "minimum": 0, "maximum": 1, "description": "Verified spec fields / defined spec fields. Not a goodness score." },
+    "spec_fields_total": { "type": "integer", "minimum": 0 },
+    "spec_fields_verified": { "type": "integer", "minimum": 0 },
+    "review_rating": { "type": ["number", "string"], "description": "Number only from explicit real rating, else string 'unavailable'." },
+    "review_scale": { "type": ["number", "null"] },
+    "review_count": { "type": ["integer", "string"], "description": "Integer only from explicit real count, else string 'unavailable'." },
+    "review_evidence": { "type": "string" },
+    "quality_evidence": { "type": "array", "items": { "type": "object" } },
+    "quality_confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "source_urls": { "type": "array", "items": { "type": "string" } },
+    "retrieved_at": { "type": "string", "format": "date-time" },
+    "data_status": { "type": "string", "enum": ["LIVE", "PARTIAL", "STALE", "UNAVAILABLE"] }
+  },
+  "additionalProperties": false
+}

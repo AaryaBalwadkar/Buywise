@@ -1,0 +1,7 @@
+{
+  "name": "product-details",
+  "input": { "url": "string (uri, required unless ebayItemId)", "ebayItemId": "string (optional)" },
+  "output": "single envelope with data:{title, condition, price, currency, seller, shipping|extracted_text}",
+  "providers": ["ebay_browse_api.getItem", "tavily_extract"],
+  "exclusions": ["amazon.*", "flipkart.*"]
+}

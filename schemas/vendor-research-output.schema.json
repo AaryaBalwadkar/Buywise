@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "buywise/vendor-research-output.schema.json",
+  "title": "VendorResearchOutput",
+  "type": "object",
+  "required": ["procurement_id", "offers", "data_status"],
+  "properties": {
+    "procurement_id": { "type": "string", "format": "uuid" },
+    "offers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["offer_id", "product_id", "vendor_id", "vendor_name", "source", "source_url", "retrieved_at", "data_status", "confidence"],
+        "properties": {
+          "offer_id": { "type": "string", "minLength": 1 },
+          "product_id": { "type": "string", "minLength": 1 },
+          "vendor_id": { "type": "string", "minLength": 1 },
+          "vendor_name": { "type": "string", "minLength": 1 },
+          "unit_price": { "type": ["number", "string"], "description": "Number if verified, else string 'unavailable'." },
+          "currency": { "type": ["string", "null"], "pattern": "^([A-Z]{3})?$" },
+          "discount_pct": { "type": ["number", "string"] },
+          "net_price": { "type": ["number", "string"] },
+          "delivery_days": { "type": ["string", "number"] },
+          "warranty_months": { "type": ["string", "number"] },
+          "payment_terms": { "type": "string" },
+          "availability": { "type": "string" },
+          "source": { "type": "string" },
+          "source_url": { "type": "string", "format": "uri" },
+          "retrieved_at": { "type": "string", "format": "date-time" },
+          "data_status": { "type": "string", "enum": ["LIVE", "PARTIAL", "STALE", "UNAVAILABLE"] },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+        },
+        "additionalProperties": false
+      }
+    },
+    "data_status": { "type": "string", "enum": ["LIVE", "PARTIAL", "STALE", "UNAVAILABLE"] },
+    "unavailable_reasons": { "type": "array", "items": { "type": "string" } }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "buywise/reevaluation-output.schema.json",
+  "title": "ReevaluationOutput",
+  "type": "object",
+  "required": ["procurement_id", "negotiation_id", "product_id", "vendor_id", "offer_id", "status"],
+  "properties": {
+    "reevaluation_id": { "type": "string" },
+    "procurement_id": { "type": "string", "format": "uuid" },
+    "negotiation_id": { "type": "string" },
+    "product_id": { "type": "string" },
+    "vendor_id": { "type": "string" },
+    "offer_id": { "type": "string" },
+    "original_score": { "type": ["number", "null"] },
+    "revised_score": { "type": ["number", "null"] },
+    "score_delta": { "type": ["number", "null"] },
+    "original_price": { "type": ["number", "string"], "description": "Number when verified, else 'unavailable'." },
+    "revised_price": { "type": ["number", "string"] },
+    "currency": { "type": ["string", "null"], "pattern": "^([A-Z]{3})?$" },
+    "absolute_savings": { "type": ["number", "string"], "description": "Number only with two real same-currency prices, else 'unavailable'." },
+    "percentage_savings": { "type": ["number", "string"] },
+    "criteria_changed": { "type": "array", "items": { "type": "string" } },
+    "criteria_used": { "type": "array", "items": { "type": "string" } },
+    "criteria_missing": { "type": "array", "items": { "type": "string" } },
+    "evidence_urls": { "type": "array", "items": { "type": "string" } },
+    "status": { "type": "string", "enum": ["REEVALUATED", "PARTIAL", "WAITING_FOR_VENDOR", "NOT_ELIGIBLE", "REJECTED"] },
+    "created_at": { "type": "string", "format": "date-time" }
+  },
+  "additionalProperties": false
+}

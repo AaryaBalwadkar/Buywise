@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "buywise/comparison-output.schema.json",
+  "title": "ComparisonOutput",
+  "type": "object",
+  "required": ["procurement_id", "comparisons"],
+  "properties": {
+    "procurement_id": { "type": "string", "format": "uuid" },
+    "comparisons": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["product_id", "rank", "criteria_used", "criteria_missing", "evidence_urls"],
+        "properties": {
+          "comparison_id": { "type": "string" },
+          "product_id": { "type": "string" },
+          "rank": { "type": "integer", "minimum": 1 },
+          "overall_score": { "type": ["number", "null"], "description": "Null means no basis for scoring, not a bad product." },
+          "criteria_scores": { "type": "object", "description": "criterion -> 0..1 or null (unavailable, excluded with renormalization)." },
+          "criteria_used": { "type": "array", "items": { "type": "string" } },
+          "criteria_missing": { "type": "array", "items": { "type": "string" } },
+          "effective_weight_total": { "type": "number", "minimum": 0 },
+          "budget_compliance": { "type": "string" },
+          "source_quality": { "type": "number" },
+          "specification_completeness": { "type": "number" },
+          "strengths": { "type": "array", "items": { "type": "string" }, "description": "Evidence-grounded only; no unsupported claims." },
+          "limitations": { "type": "array", "items": { "type": "string" } },
+          "evidence_urls": { "type": "array", "items": { "type": "string", "format": "uri" } }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

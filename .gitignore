@@ -1,0 +1,12 @@
+.env
+*.local.env
+*.log
+*.dump
+backups/
+n8n_data/
+pgdata/
+node_modules/
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db

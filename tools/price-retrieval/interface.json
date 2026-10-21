@@ -1,0 +1,6 @@
+{
+  "name": "price-retrieval",
+  "input": { "serpapi_product_id": "string (preferred, per-merchant seller prices)", "query": "string (listing-price fallback)", "productCtx": "object (optional)" },
+  "output": "array of envelopes with data:{price (number|LIVE or 'unavailable'), currency, merchant, price_status}",
+  "rules": ["price+currency+source_url+retrieved_at required for LIVE", "currency from explicit symbol/code only, never guessed", "no FX conversion in this adapter", "no 'starting from' range prices", "treat price as time-sensitive"]
+}

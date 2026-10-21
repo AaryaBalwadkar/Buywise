@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "buywise/product-research-output.schema.json",
+  "title": "ProductResearchOutput",
+  "type": "object",
+  "required": ["procurement_id", "products", "data_status"],
+  "properties": {
+    "procurement_id": { "type": "string", "format": "uuid" },
+    "products": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["product_id", "name", "specifications", "source", "source_url", "retrieved_at", "data_status", "confidence"],
+        "properties": {
+          "product_id": { "type": "string", "minLength": 1 },
+          "name": { "type": "string", "minLength": 1 },
+          "brand": { "type": "string" },
+          "specifications": { "type": "object", "description": "Missing spec MUST be string 'unavailable', never guessed." },
+          "source": { "type": "string" },
+          "source_url": { "type": "string", "format": "uri" },
+          "retrieved_at": { "type": "string", "format": "date-time" },
+          "data_status": { "type": "string", "enum": ["LIVE", "PARTIAL", "STALE", "UNAVAILABLE"] },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+        },
+        "additionalProperties": false
+      }
+    },
+    "data_status": { "type": "string", "enum": ["LIVE", "PARTIAL", "STALE", "UNAVAILABLE"] },
+    "unavailable_reasons": { "type": "array", "items": { "type": "string" } }
+  },
+  "additionalProperties": false
+}

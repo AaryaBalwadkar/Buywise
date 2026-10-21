@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "buywise/negotiation-request.schema.json",
+  "title": "NegotiationRequest",
+  "type": "object",
+  "required": ["procurement_id", "product_id", "vendor_id", "offer_id", "current_price", "currency", "contact_channel", "status"],
+  "properties": {
+    "negotiation_id": { "type": "string" },
+    "procurement_id": { "type": "string", "format": "uuid" },
+    "product_id": { "type": "string" },
+    "vendor_id": { "type": "string" },
+    "offer_id": { "type": "string" },
+    "current_price": { "type": "number", "exclusiveMinimum": 0 },
+    "currency": { "type": "string", "pattern": "^[A-Z]{3}$" },
+    "target_price": { "type": ["number", "string"], "description": "Number from explicit budget/discount basis, else string 'unavailable'. Never assumed." },
+    "requested_discount_percent": { "type": ["number", "string"] },
+    "requested_terms": { "type": "array", "items": { "type": "string" } },
+    "reason": { "type": "string" },
+    "contact_channel": {
+      "type": "object",
+      "required": ["type", "address", "source_url"],
+      "properties": {
+        "type": { "type": "string", "enum": ["email", "web_form", "other"] },
+        "address": { "type": "string", "minLength": 1 },
+        "source_url": { "type": "string", "format": "uri" },
+        "status": { "type": "string", "enum": ["LIVE", "PARTIAL", "STALE", "UNAVAILABLE"] }
+      },
+      "additionalProperties": false
+    },
+    "message": {
+      "type": ["object", "null"],
+      "required": ["subject", "body", "facts_used", "requested_changes", "evidence_urls"],
+      "properties": {
+        "subject": { "type": "string" },
+        "body": { "type": "string" },
+        "facts_used": { "type": "array", "items": { "type": "string" } },
+        "requested_changes": { "type": "array", "items": { "type": "string" } },
+        "evidence_urls": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "status": { "type": "string", "enum": ["NOT_READY", "READY_FOR_HUMAN_REVIEW", "READY_TO_SEND", "SENT", "WAITING_FOR_VENDOR", "VENDOR_RESPONSE_RECEIVED", "FAILED"] },
+    "human_confirmation": { "type": "boolean" },
+    "do_not_send": { "type": "boolean" },
+    "created_at": { "type": "string", "format": "date-time" }
+  },
+  "additionalProperties": false
+}

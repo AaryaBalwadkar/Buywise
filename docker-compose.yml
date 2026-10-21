@@ -1,0 +1,127 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: buywise-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-buywise}
+      POSTGRES_USER: ${POSTGRES_USER:-buywise}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./sql:/docker-entrypoint-initdb.d:ro
+    networks:
+      - buywise-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-buywise} -d ${POSTGRES_DB:-buywise}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ollama:
+    image: ollama/ollama:0.6.3
+    container_name: buywise-ollama
+    restart: unless-stopped
+    ports:
+      - "${OLLAMA_PORT:-11434}:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.2:3b}
+      OLLAMA_HOST: 0.0.0.0:11434
+    networks:
+      - buywise-net
+
+  n8n:
+    image: n8nio/n8n:1.107.4
+    container_name: buywise-n8n
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ollama:
+        condition: service_started
+    environment:
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_PORT: 5432
+      DB_POSTGRESDB_DATABASE: ${POSTGRES_DB:-buywise}
+      DB_POSTGRESDB_USER: ${POSTGRES_USER:-buywise}
+      DB_POSTGRESDB_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:?N8N_ENCRYPTION_KEY must be set in .env}
+      N8N_HOST: ${N8N_HOST:-localhost}
+      N8N_PORT: 5678
+      N8N_PROTOCOL: http
+      WEBHOOK_URL: ${WEBHOOK_URL:-http://localhost:5678/}
+      GENERIC_TIMEZONE: ${GENERIC_TIMEZONE:-UTC}
+      # BuyWise provider config — all optional; leave empty for zero-cost deployment.
+      # Missing keys simply make those providers return UNAVAILABLE; the system
+      # runs fully in deterministic mode without them. No paid API is ever called.
+      TAVILY_API_KEY: ${TAVILY_API_KEY:-}
+      SERPAPI_API_KEY: ${SERPAPI_API_KEY:-}
+      EBAY_ENABLED: ${EBAY_ENABLED:-false}
+      EBAY_APP_ID: ${EBAY_APP_ID:-}
+      EBAY_CERT_ID: ${EBAY_CERT_ID:-}
+      YELP_API_KEY: ${YELP_API_KEY:-}
+      # LLM layer — Ollama is self-hosted and free. Set LLM_AVAILABLE=true to
+      # enable n8n LLM-assisted agents (product research, review quality,
+      # decision reasoning). Set LLM_AVAILABLE=false to skip LLM entirely;
+      # the web server's deterministic pipeline still works without it.
+      LLM_AVAILABLE: ${LLM_AVAILABLE:-true}
+      LLM_PROVIDER: ${LLM_PROVIDER:-ollama}
+      LLM_API_URL: ${LLM_API_URL:-http://ollama:11434}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_MODEL: ${LLM_MODEL:-llama3.2:3b}
+      OLLAMA_HOST: http://ollama:11434
+      NEGOTIATION_SEND_MODE: ${NEGOTIATION_SEND_MODE:-DRAFT_ONLY}
+    ports:
+      - "${N8N_PORT:-5678}:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./n8n/workflows:/home/node/.n8n/workflows-import:ro
+      - ./tools:/home/node/.n8n/tools:ro
+      - ./prompts:/home/node/.n8n/prompts:ro
+      - ./schemas:/home/node/.n8n/schemas:ro
+    networks:
+      - buywise-net
+
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+    container_name: buywise-web
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      n8n:
+        condition: service_started
+    environment:
+      PORT: ${PORT:-8080}
+      N8N_WEBHOOK_URL: ${N8N_WEBHOOK_URL:-http://n8n:5678/webhook/procurement-request}
+      PGHOST: postgres
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      POSTGRES_DB: ${POSTGRES_DB:-buywise}
+      POSTGRES_USER: ${POSTGRES_USER:-buywise}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}
+      # LLM layer for the web server advisory — mirrors n8n settings
+      LLM_PROVIDER: ${LLM_PROVIDER:-ollama}
+      LLM_API_URL: ${LLM_API_URL:-http://ollama:11434}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_MODEL: ${LLM_MODEL:-llama3.2:3b}
+    ports:
+      - "${PORT:-8080}:8080"
+    networks:
+      - buywise-net
+
+networks:
+  buywise-net:
+    driver: bridge
+
+volumes:
+  pgdata:
+  n8n_data:
+  ollama_data:
